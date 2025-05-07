@@ -1,0 +1,3 @@
+[submodule "embedding-viewer"]
+	path = embedding-viewer
+	url = https://github.com/danielosullivan2007/windsurf.git
