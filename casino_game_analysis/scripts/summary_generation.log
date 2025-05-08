@@ -1,0 +1,72 @@
+2025-05-07 23:25:29,530 - INFO: Attempting to read .env file from: /Users/danielosullivan/Desktop/windsurf_testing/windsurf/casino_game_analysis/scripts/.env
+2025-05-07 23:25:29,530 - WARNING: File does not exist: .env
+2025-05-07 23:25:29,530 - INFO: Attempting to read .env file from: /Users/danielosullivan/Desktop/windsurf_testing/windsurf/casino_game_analysis/.env
+2025-05-07 23:25:29,530 - INFO: Successfully opened file: ../.env
+2025-05-07 23:25:29,531 - INFO: API key loaded: sk-zi...fvfL
+2025-05-07 23:25:29,548 - CRITICAL: Failed to initialize OpenAI client: Models.list() got an unexpected keyword argument 'limit'
+2025-05-07 23:25:42,472 - INFO: Attempting to read .env file from: /Users/danielosullivan/Desktop/windsurf_testing/windsurf/casino_game_analysis/scripts/.env
+2025-05-07 23:25:42,472 - WARNING: File does not exist: .env
+2025-05-07 23:25:42,472 - INFO: Attempting to read .env file from: /Users/danielosullivan/Desktop/windsurf_testing/windsurf/casino_game_analysis/.env
+2025-05-07 23:25:42,472 - INFO: Successfully opened file: ../.env
+2025-05-07 23:25:42,472 - INFO: API key loaded: sk-zi...fvfL
+2025-05-07 23:25:43,331 - INFO: HTTP Request: GET https://api.openai.com/v1/models "HTTP/1.1 200 OK"
+2025-05-07 23:25:43,339 - INFO: Available models: ['gpt-4o-audio-preview-2024-12-17', 'dall-e-3', 'dall-e-2', 'gpt-4o-audio-preview-2024-10-01', 'gpt-4-turbo-preview']
+2025-05-07 23:25:47,072 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:33:15,494 - INFO: Attempting to read .env file from: /Users/danielosullivan/Desktop/windsurf_testing/windsurf/casino_game_analysis/scripts/.env
+2025-05-07 23:33:15,494 - WARNING: File does not exist: .env
+2025-05-07 23:33:15,494 - INFO: Attempting to read .env file from: /Users/danielosullivan/Desktop/windsurf_testing/windsurf/casino_game_analysis/.env
+2025-05-07 23:33:15,494 - INFO: Successfully opened file: ../.env
+2025-05-07 23:33:15,494 - INFO: API key loaded: sk-zi...fvfL
+2025-05-07 23:33:16,168 - INFO: HTTP Request: GET https://api.openai.com/v1/models "HTTP/1.1 200 OK"
+2025-05-07 23:33:16,171 - INFO: Available models: ['gpt-4o-audio-preview-2024-12-17', 'dall-e-3', 'dall-e-2', 'gpt-4o-audio-preview-2024-10-01', 'gpt-4-turbo-preview']
+2025-05-07 23:33:19,068 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:33:22,037 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:33:24,597 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:33:26,850 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:33:29,410 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:33:32,994 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:33:35,656 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:33:38,663 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:33:41,076 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:33:43,745 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:33:46,612 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:33:48,866 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:33:51,426 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:33:54,396 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:33:56,750 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:33:59,823 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:34:02,814 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:35:36,733 - INFO: Attempting to read .env file from: /Users/danielosullivan/Desktop/windsurf_testing/windsurf/casino_game_analysis/scripts/.env
+2025-05-07 23:35:36,733 - WARNING: File does not exist: .env
+2025-05-07 23:35:36,733 - INFO: Attempting to read .env file from: /Users/danielosullivan/Desktop/windsurf_testing/windsurf/casino_game_analysis/.env
+2025-05-07 23:35:36,733 - INFO: Successfully opened file: ../.env
+2025-05-07 23:35:36,733 - INFO: API key loaded: sk-zi...fvfL
+2025-05-07 23:35:37,516 - INFO: HTTP Request: GET https://api.openai.com/v1/models "HTTP/1.1 200 OK"
+2025-05-07 23:35:37,525 - INFO: Available models: ['gpt-4o-audio-preview-2024-12-17', 'dall-e-3', 'dall-e-2', 'gpt-4o-audio-preview-2024-10-01', 'gpt-4-turbo-preview']
+2025-05-07 23:35:43,350 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:35:48,741 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:35:55,018 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:36:00,760 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:36:06,690 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:36:12,108 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:36:18,493 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:36:24,925 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:36:30,147 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:36:35,881 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:36:41,702 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:36:48,897 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:36:54,619 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:37:50,473 - INFO: Attempting to read .env file from: /Users/danielosullivan/Desktop/windsurf_testing/windsurf/casino_game_analysis/scripts/.env
+2025-05-07 23:37:50,473 - WARNING: File does not exist: .env
+2025-05-07 23:37:50,473 - INFO: Attempting to read .env file from: /Users/danielosullivan/Desktop/windsurf_testing/windsurf/casino_game_analysis/.env
+2025-05-07 23:37:50,473 - INFO: Successfully opened file: ../.env
+2025-05-07 23:37:50,473 - INFO: API key loaded: sk-zi...fvfL
+2025-05-07 23:37:51,114 - INFO: HTTP Request: GET https://api.openai.com/v1/models "HTTP/1.1 200 OK"
+2025-05-07 23:37:51,118 - INFO: Available models: ['gpt-4o-audio-preview-2024-12-17', 'dall-e-3', 'dall-e-2', 'gpt-4o-audio-preview-2024-10-01', 'gpt-4-turbo-preview']
+2025-05-07 23:37:57,292 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:38:03,332 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-07 23:38:08,555 - INFO: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-05-08 16:17:37,990 - CRITICAL: Failed to initialize OpenAI client: module 'openai' has no attribute 'OpenAI'
+2025-05-08 16:19:01,508 - CRITICAL: Failed to initialize OpenAI client: module 'openai' has no attribute 'OpenAI'
+2025-05-08 16:20:03,406 - CRITICAL: Failed to initialize OpenAI client: module 'openai' has no attribute 'OpenAI'
+2025-05-08 16:20:19,876 - CRITICAL: Failed to initialize OpenAI client: module 'openai' has no attribute 'OpenAI'
