@@ -1,0 +1,25 @@
+2025-05-09 19:57:10,916 - ERROR: Error reading CSV file: [Errno 2] No such file or directory: '../data/bigwinboard_with_summaries_complete.csv'
+2025-05-09 20:00:47,810 - INFO: Successfully loaded 3549 rows from ../data/bigwinboard_with_summaries_final.csv
+2025-05-09 20:00:47,812 - INFO: Found 2197 new games to process
+2025-05-09 20:22:02,303 - INFO: Successfully loaded 3549 rows from ../data/bigwinboard_with_summaries_final.csv
+2025-05-09 20:22:02,305 - INFO: Limiting processing to 500 games (out of 2197 available)
+2025-05-09 20:22:02,306 - INFO: Processing 500 new games
+2025-05-09 20:25:29,849 - ERROR: Embeddings dataframe missing required columns
+2025-05-09 20:26:19,393 - INFO: Successfully loaded 3549 rows from ../data/bigwinboard_with_summaries_final.csv
+2025-05-09 20:26:19,395 - INFO: Limiting processing to 500 games (out of 2197 available)
+2025-05-09 20:26:19,395 - INFO: Processing 500 new games
+2025-05-09 20:29:25,717 - INFO: Processed 1840 embeddings with correct format
+2025-05-09 20:29:25,719 - ERROR: Error saving unified embeddings: name 'csv' is not defined
+2025-05-09 20:29:48,877 - INFO: Successfully loaded 3549 rows from ../data/bigwinboard_with_summaries_final.csv
+2025-05-09 20:29:48,879 - INFO: Limiting processing to 500 games (out of 2197 available)
+2025-05-09 20:29:48,879 - INFO: Processing 500 new games
+2025-05-09 20:32:56,652 - INFO: Processed 1840 embeddings with correct format
+2025-05-09 20:32:57,120 - INFO: Saved 1840 embeddings to unified format: ../embeddings/unified_game_embeddings.csv
+2025-05-09 20:32:57,120 - WARNING: Could not save in legacy format: list indices must be integers or slices, not str
+2025-05-09 20:32:59,010 - INFO: Saved checkpoint with 1840 processed titles
+2025-05-09 20:35:59,500 - INFO: Successfully loaded 3549 rows from ../data/bigwinboard_with_summaries_final.csv
+2025-05-09 20:35:59,502 - INFO: Processing 1697 new games
+2025-05-09 20:46:23,885 - INFO: Processed 3537 embeddings with correct format
+2025-05-09 20:46:26,064 - INFO: Saved 3537 embeddings to unified format: ../embeddings/unified_game_embeddings.csv
+2025-05-09 20:46:26,064 - WARNING: Could not save in legacy format: list indices must be integers or slices, not str
+2025-05-09 20:46:29,690 - INFO: Saved checkpoint with 3537 processed titles

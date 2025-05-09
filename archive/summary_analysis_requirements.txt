@@ -1,0 +1,7 @@
+pandas
+numpy
+openai
+scikit-learn
+matplotlib
+tqdm
+wordcloud

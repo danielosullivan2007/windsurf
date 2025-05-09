@@ -1,0 +1,1 @@
+console.log('Inspecting element styles...'); const paragraphs = document.querySelectorAll('p.MuiTypography-root'); paragraphs.forEach((p, i) => { console.log(, p.textContent.slice(0, 30), '... | Current style:', window.getComputedStyle(p).color); });

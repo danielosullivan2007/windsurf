@@ -1,0 +1,21 @@
+/* Targeted color override ONLY for the specified elements */
+h5.MuiTypography-root.MuiTypography-h5[data-component-name="MuiTypography-root"] {
+  color: #e6e6f0 !important;
+}
+
+/* Additional more specific selectors to ensure it overrides */
+.MuiTypography-root.MuiTypography-h5 {
+  color: #e6e6f0 !important;
+}
+
+/* Direct targeting of Casino Search heading - highest specificity */
+.search-container h5.MuiTypography-root {
+  color: #e6e6f0 !important;
+}
+
+/* Most extreme override possible */
+h5 {
+  color: #e6e6f0 !important;
+}
+
+/* Removing all generic paragraph styling from CSS to prevent conflicts */

@@ -1,0 +1,7 @@
+2025-05-09 20:15:55,401 - INFO: Starting embeddings-titles consolidation process...
+2025-05-09 20:15:55,403 - INFO: Loaded 1400 titles from mapping file
+2025-05-09 20:15:55,617 - INFO: Loaded 1341 embeddings
+2025-05-09 20:15:55,618 - WARNING: Number of embeddings (1341) doesn't match titles (1400)
+2025-05-09 20:15:55,618 - INFO: Trimmed to 1341 matching entries
+2025-05-09 20:15:56,839 - INFO: Successfully saved 1341 unified embeddings to ../embeddings/unified_game_embeddings.csv
+2025-05-09 20:15:56,848 - INFO: Embeddings consolidation completed successfully

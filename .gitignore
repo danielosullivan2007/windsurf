@@ -35,7 +35,6 @@ __pycache__/
 *$py.class
 
 # Embedding and data files (optional, depending on data sensitivity)
-*.csv
 game_embeddings.json
 cluster_info.json
 

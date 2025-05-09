@@ -1,0 +1,3 @@
+2025-05-09 21:28:40,385 - INFO: Checking for new embeddings and game data...
+2025-05-09 21:28:40,385 - ERROR: Unified embeddings file ../embeddings/unified_game_embeddings.csv not found!
+2025-05-09 21:28:40,385 - ERROR: Search app update failed!

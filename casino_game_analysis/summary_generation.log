@@ -1,0 +1,1 @@
+2025-05-09 11:50:07,430 - CRITICAL: Failed to initialize OpenAI client: module 'openai' has no attribute 'OpenAI'
