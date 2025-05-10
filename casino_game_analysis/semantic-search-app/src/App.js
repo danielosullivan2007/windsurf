@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DarkBlueText, MagentaText } from './TextColors';
+import { DarkBlueText, MagentaText, GreenMatchText } from './TextColors';
 // import CasinoHeading from './CasinoHeading';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -246,19 +246,23 @@ function App() {
                 BETA
               </Typography>
             </Box>
-            <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }} style={{color: '#a0c4ff'}}>
+            <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }} style={{color: '#ff4081'}}>
               Casino Search
             </Typography>
             <DarkBlueText variant="body2">
               Ask for vibes, themes, titles — whatever you're craving!
             </DarkBlueText>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, mb: 2 }}>
-              <MagentaText 
-                variant="body2"
-                onClick={() => { setSearchQuery(''); setShowSuggestions(true); setSearchResults([]); }}
-              >
-                Switch to Standard Search
-              </MagentaText>
+              {/* Only show Return to Search after search results are displayed */}
+              {searchResults.length > 0 && (
+                <Typography 
+                  variant="body2"
+                  onClick={() => { setSearchQuery(''); setShowSuggestions(true); setSearchResults([]); }}
+                  style={{ color: '#f0f4ff', cursor: 'pointer' }}
+                >
+                  Return to Search
+                </Typography>
+              )}
               
               {/* Toggle Switch for Semantic-Only Mode */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -598,32 +602,10 @@ function App() {
                       {game.game_name || game.title || 'Unknown Game'}
                     </Typography>
                     
-                    {/* Match percentage with improved styling - centered */}
-                    <Box sx={{ 
-                      display: 'flex',
-                      justifyContent: 'center',
-                      mb: 0.5
-                    }}>
-                      <Box sx={{ 
-                        display: 'inline-block',
-                        px: 1.5, 
-                        py: 0.4, 
-                        borderRadius: '12px',
-                        bgcolor: game.similarity > 0.8 ? 'rgba(76, 175, 80, 0.15)' : 
-                                 game.similarity > 0.6 ? 'rgba(255, 152, 0, 0.15)' : 
-                                 'rgba(244, 67, 54, 0.15)'
-                      }}>
-                      <Typography variant="body2" sx={{ 
-                        color: game.similarity > 0.8 ? '#4caf50' : 
-                               game.similarity > 0.6 ? '#ff9800' : 
-                               '#f44336',
-                        fontWeight: 600,
-                        fontSize: '0.7rem',
-                      }}>
-                        {Math.round(game.similarity * 100)}% match
-                      </Typography>
-                      </Box>
-                    </Box>
+                    {/* Match percentage with dedicated green component */}
+                    <GreenMatchText>
+                      {Math.round(game.similarity * 100)}% match
+                    </GreenMatchText>
                     
                     {/* Developer and Volatility section with decorative lines */}
                     <Box sx={{ mt: 0.5, mb: 1 }}>
@@ -644,19 +626,35 @@ function App() {
                           size="small" 
                           sx={{ 
                             mr: 1, 
-                            bgcolor: 'rgba(40, 45, 55, 0.8)',
-                            color: '#d0d0ff',
-                            fontWeight: 500,
-                            '& .MuiChip-label': { fontSize: '0.7rem' }
-                          }} 
+                            bgcolor: '#ffffff !important',
+                            color: '#000000 !important',
+                            fontWeight: 600,
+                            border: '1px solid #444444',
+                            '& .MuiChip-label': { 
+                              fontSize: '0.7rem',
+                              color: '#000000 !important',
+                              fontWeight: '600 !important'
+                            }
+                          }}
+                          style={{
+                            backgroundColor: '#ffffff',
+                            color: '#000000'
+                          }}
+                          className="developer-chip"
                         />
                         <Chip 
                           label={`Volatility: ${game.volatility || 'Unknown'}`}
                           size="small" 
                           sx={{ 
-                            bgcolor: 'rgba(40, 45, 55, 0.8)',
-                            color: '#d0ffff',
-                            fontWeight: 500,
+                            bgcolor: 
+                              game.volatility?.toLowerCase().includes('high') && !game.volatility?.toLowerCase().includes('medium') ? 'rgba(244, 67, 54, 0.8)' : // High = red
+                              game.volatility?.toLowerCase().includes('medium') && game.volatility?.toLowerCase().includes('high') ? 'rgba(255, 152, 0, 0.8)' : // Medium/High = orange
+                              game.volatility?.toLowerCase().includes('medium') ? 'rgba(255, 140, 0, 0.8)' : // Medium = orange (was yellow)
+                              'rgba(40, 45, 55, 0.8)', // Default dark background
+                            color: 
+                              game.volatility?.toLowerCase().includes('medium') && !game.volatility?.toLowerCase().includes('high') ? '#ffffff' : // White text on orange background (was black on yellow)
+                              '#ffffff', // White text on other backgrounds
+                            fontWeight: 700, // Bolder for better readability
                             '& .MuiChip-label': { fontSize: '0.7rem' }
                           }} 
                         />

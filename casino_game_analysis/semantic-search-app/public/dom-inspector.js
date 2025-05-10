@@ -23,8 +23,8 @@ function inspectAndFix() {
     });
     
     if (text.includes('Casino Search')) {
-      console.log('Found "Casino Search" heading - applying ice blue');
-      h5.style.setProperty('color', '#a0c4ff', 'important');
+      console.log('Found "Casino Search" heading - applying magenta pink');
+      h5.style.setProperty('color', '#ff4081', 'important');
       
       setTimeout(() => {
         console.log('After heading style application:', window.getComputedStyle(h5).color);
@@ -55,9 +55,26 @@ function inspectAndFix() {
       }, 100);
     }
     
-    if (text.includes('Switch to Standard')) {
-      console.log('Found "Switch to Standard Search" paragraph - applying magenta');
-      p.style.setProperty('color', '#ff4081', 'important');
+    // Switch to Standard Search has been removed and replaced by Return to Search
+    
+    if (text.includes('match')) {
+      console.log('Found match percentage text - applying VIBRANT green');
+      p.style.setProperty('color', '#00ff00', 'important'); // Bright vibrant green
+      
+      // Force the color with !important and higher specificity
+      const style = document.createElement('style');
+      style.innerHTML = `p:contains("match") { color: #00ff00 !important; }`;
+      document.head.appendChild(style);
+      
+      // Debug the style application
+      setTimeout(() => {
+        console.log('After match percentage style application:', window.getComputedStyle(p).color);
+      }, 100);
+    }
+    
+    if (text.includes('Return to Search')) {
+      console.log('Found "Return to Search" text - applying white');
+      p.style.setProperty('color', '#f0f4ff', 'important');
       
       // Debug the style application
       setTimeout(() => {
