@@ -18,10 +18,12 @@ import threading
 from functools import lru_cache
 
 # Input and output file paths
-input_file = "../data/bigwinboard_cleaned.csv"
+input_file = "../data/backup/bigwinboard_cleaned.csv"
 output_file = "../data/bigwinboard_consolidated_summaries.csv"
+short_summaries_file = "../data/bigwinboard_short_summaries.csv"
 embeddings_file = "../embeddings/game_summary_embeddings.csv"
-progress_file = "summary_progress.json"
+progress_file = "../data/logs/summary_progress.json"
+short_progress_file = "../data/logs/short_summary_progress.json"
 
 import logging
 
@@ -30,7 +32,7 @@ logging.basicConfig(
     level=logging.ERROR,
     format='%(asctime)s - %(levelname)s: %(message)s',
     handlers=[
-        logging.FileHandler('summary_generation.log'),
+        logging.FileHandler('../data/logs/summary_generation.log'),
         logging.StreamHandler()
     ]
 )
@@ -105,6 +107,7 @@ BATCH_SIZE = 20       # Number of reviews to process in a batch before saving
 MAX_GAMES = None      # Maximum number of games to process (None for all)
 SUMMARY_LENGTH = 300  # Maximum tokens for each summary
 OVERRIDE_EXISTING = False  # Whether to override existing summaries
+GENERATE_SHORT = False  # Whether to generate short summaries
 
 # Cost estimation configuration
 MODEL_COSTS = {
@@ -129,11 +132,23 @@ API_RATE_LIMIT = 0.5  # 0.5 seconds between API calls (20 requests per 10 second
 # Model to use will be set in the main function
 model_to_use = DEFAULT_MODEL
 
+# Prompt templates
+LONG_SUMMARY_PROMPT = """You are a marketing expert for online casino games. Based on this review, write a structured summary of the game highlighting its features, themes, gameplay, and user experience. Emphasize unique aspects of the game that would interest players. Limit your response to 300 tokens.
+
+Game Title: {title}
+Review: {review_text}
+"""
+
+SHORT_SUMMARY_PROMPT = """You are a marketing expert for online casino games. Based on the review, you will write 2 sentences describing the game in an exciting fashion. If there's great audio or sounds mentioned, highlight this. Also try to capture themes, or anything else which is positive.
+
+Game Title: {title}
+Review: {review_text}
+"""
+
 # Cache for summaries to avoid duplicate API calls
 @lru_cache(maxsize=1000)
-def create_summary(title, review_text):
-    """Generate a structured summary for a review using OpenAI's API with caching"""
-    # Skip empty reviews
+def create_summary(title, review_text, short=False):
+    """Generate a summary for a review using OpenAI's API with caching"""
     if not review_text or len(review_text.strip()) < 50:
         return None
         
@@ -141,18 +156,10 @@ def create_summary(title, review_text):
     if len(review_text) > 8000:
         review_text = review_text[:8000] + "..."
     
-    prompt = f"""
-    Please provide a concise 4-line summary of the following casino game review for '{title}'.
+    # Select the appropriate prompt template based on summary type
+    prompt_template = SHORT_SUMMARY_PROMPT if short else LONG_SUMMARY_PROMPT
+    prompt = prompt_template.format(title=title, review_text=review_text)
     
-    Line 1: Overview focusing on the game theme
-    Line 2: Focus on the game features
-    Line 3: Summary of the reviewer's verdict
-    Line 4: Description of the game aesthetics and audio (if mentioned)
-    
-    Make each line brief but informative.
-    
-    Review: {review_text}
-    """
     try:
         # Implement smarter rate limiting
         with api_lock:
@@ -192,90 +199,108 @@ def create_summary(title, review_text):
             )
             summary = response.choices[0].message.content.strip()
         
-        # Summary is already extracted in the conditional blocks above
-        
         return summary
     except Exception as e:
         logging.error(f"Error generating summary for {title}: {e}")
         return None
 
-def load_progress():
+def load_progress(short=False):
     """Load the last processed index from progress file"""
+    if short:
+        progress_file_path = short_progress_file
+    else:
+        progress_file_path = progress_file
+    
     try:
-        with open(progress_file, 'r') as f:
+        with open(progress_file_path, 'r') as f:
             progress = json.load(f)
             return progress.get('last_processed_index', 0)
     except (FileNotFoundError, json.JSONDecodeError):
         return 0
 
-def save_progress(index):
+def save_progress(index, short=False):
     """Save the current progress to a JSON file"""
     progress = {
         'last_processed_index': index,
         'timestamp': time.time()
     }
-    with open(progress_file, 'w') as f:
+    # Determine which progress file to use
+    progress_path = short_progress_file if short else progress_file
+    
+    with open(progress_path, 'w') as f:
         json.dump(progress, f)
 
 # Thread-safe CSV writer
 csv_lock = threading.Lock()
 
-# Process a single row and return the result
-def process_single_row(row_data):
+# Process a single row to generate a summary
+def process_single_row(row_data, short=False):
     """Process a single row to generate a summary"""
     index, row = row_data
     
-    # Handle different column name formats
-    title = row['title'] if 'title' in row else row.get('Title', '')
+    # Extract title and review text
+    if 'Title' in row:
+        title = row['Title']
+    elif 'title' in row:
+        title = row['title']
+    else:
+        title = row.get(row.index[0], "") if len(row.index) > 0 else ""
     
-    # Skip if no title
-    if not title or not isinstance(title, str) or len(title.strip()) < 2:
-        return None
-    
-    # Try different possible column names for review text
-    if 'review_text' in row:
-        review_text = row['review_text']
+    if 'Review' in row:
+        review_text = row['Review']
     elif 'review' in row:
         review_text = row['review']
     else:
-        # Try to find any column that might contain review text
-        for col in row.index:
-            if 'review' in col.lower():
-                review_text = row[col]
-                break
-        else:
-            # No review column found
+        review_text = row.get(row.index[1], "") if len(row.index) > 1 else ""
+    
+    # Skip if no title
+    if not isinstance(title, str) or len(title.strip()) == 0:
+        with error_log_lock:
+            with open("../data/logs/summary_errors.log", "a") as error_log:
+                error_log.write(f"No title at index {index}\n")
             return None
     
     # Skip if no review text
-    # Reduced minimum length from 20 to 10 characters to process more games
     if not isinstance(review_text, str) or len(review_text.strip()) < 10:
         return None
     
     # Generate summary
     try:
-        summary = create_summary(title, review_text)
-        if summary:
-            # Safely escape summary for CSV
-            safe_title = title.replace('"', '""')
-            safe_summary = summary.replace('"', '""')
-            safe_review = review_text.replace('"', '""') if isinstance(review_text, str) else ""
-            
-            return (index, safe_title, safe_summary, safe_review)
+        # Create a summary (short or long)
+        summary = create_summary(title, review_text, short)
+        if not summary:
+            return None
+        
+        # Safely escape summary and title for CSV
+        safe_title = title.replace('"', '""')
+        safe_summary = summary.replace('"', '""')
+        safe_review = review_text.replace('"', '""') if isinstance(review_text, str) else ""
+        
+        # Return tuple with appropriate format for CSV writing
+        summary_field = 'short_summary' if short else 'structured_summary'
+        return (index, safe_title, safe_summary, safe_review)
     except Exception as e:
         logging.error(f"Error processing row {index}: {e}")
         # Log the error to a separate file
-        with open('summary_errors.log', 'a') as error_log:
-            error_log.write(f"Error at index {index}: {e}\n")
+        with error_log_lock:
+            with open("../data/logs/summary_errors.log", "a") as error_log:
+                error_log.write(f"Error at index {index}: {e}\n")
         return None
 
-def read_existing_summaries():
+def read_existing_summaries(short=False):
     """Read existing summaries from the output file using robust CSV parsing"""
     existing_summaries = {}
-    if os.path.exists(output_file):
+    if short:
+        output_path = short_summaries_file
+        summary_field = 'short_summary'
+    else:
+        output_path = output_file
+        summary_field = 'structured_summary'
+    
+    if os.path.exists(output_path):
         try:
             # Use the same robust CSV parsing approach as the input file
-            with open(output_file, 'r', encoding='utf-8', errors='replace') as f:
+            with open(output_path, 'r', encoding='utf-8', errors='replace') as f:
                 csv_reader = csv.reader(f, quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL)
                 
                 # Read header
@@ -294,7 +319,7 @@ def read_existing_summaries():
                 
                 # Look for summary column
                 for i, col in enumerate(headers):
-                    if col.lower() in ['structured_summary', 'summary']:
+                    if col.lower() == summary_field:
                         summary_index = i
                         break
                 
@@ -327,21 +352,25 @@ def read_existing_summaries():
     
     return existing_summaries
 
-def process_summaries(df, start_index=0):
+def process_summaries(df, start_index=0, short=False):
     """Process summaries with resume functionality and parallel processing"""
     processed_count = 0
     
     # Check if output file exists and load existing data
-    existing_summaries = read_existing_summaries()
+    existing_summaries = read_existing_summaries(short)
     if OVERRIDE_EXISTING:
         print(f"Found {len(existing_summaries)} existing summaries - will override if needed")
     else:
         print(f"Loaded {len(existing_summaries)} existing summaries to avoid duplicates")
     
-    # Create output file if it doesn't exist
-    if not os.path.exists(output_file):
-        with open(output_file, 'w', newline='', encoding='utf-8') as f:
-            f.write('Title,review,structured_summary\n')
+    # Determine the output file path based on summary type
+    output_path = short_summaries_file if short else output_file
+    
+    if not os.path.exists(output_path):
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            # Create header with fields matching what we'll write in the actual processing
+            header_field = 'short_summary' if short else 'structured_summary'
+            f.write(f'game_name,review,{header_field}\n')
     
     # Filter out rows with missing titles or reviews before calculating range
     valid_rows = []
@@ -387,7 +416,7 @@ def process_summaries(df, start_index=0):
     
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         # Submit all tasks
-        future_to_row = {executor.submit(process_single_row, (i, row)): i 
+        future_to_row = {executor.submit(process_single_row, (i, row), short): i 
                          for i, row in rows_to_process.iterrows()}
         
         # Process results as they complete
@@ -409,11 +438,13 @@ def process_summaries(df, start_index=0):
                 
                 # Thread-safe write to CSV
                 with csv_lock:
-                    with open(output_file, 'a', newline='', encoding='utf-8') as f:
+                    with open(output_path, 'a', newline='', encoding='utf-8') as f:
+                        # Write properly formatted CSV row with appropriate header positioning
+                        summary_field = 'short_summary' if short else 'structured_summary'
                         f.write(f'"{safe_title}","{safe_review}","{safe_summary}"\n')
                     
                     # Save progress
-                    save_progress(index)
+                    save_progress(index, short)
                     processed_count += 1
                     
                     # Add to existing summaries to avoid duplicates
@@ -657,12 +688,17 @@ if __name__ == "__main__":
                         help='Only estimate the cost without generating summaries')
     parser.add_argument('--override', action='store_true',
                         help='Override existing summaries instead of skipping them')
+    parser.add_argument('--short', action='store_true',
+                        help='Generate short marketing summaries (2 sentences) instead of detailed structured summaries')
     
     # Parse arguments
     args = parser.parse_args()
     
-    # Load the starting index from progress file
-    start_index = load_progress()
+    # Set the short summary flag
+    globals()['GENERATE_SHORT'] = args.short
+    
+    # Load the starting index from progress file (based on summary type)
+    start_index = load_progress(args.short)
     
     # Read the CSV file
     df = custom_csv_reader()
@@ -693,7 +729,7 @@ if __name__ == "__main__":
         sys.exit(0)
     
     # Process summaries, starting from the last processed index
-    processed_count = process_summaries(df, start_index)
+    processed_count = process_summaries(df, start_index, args.short)
     
     print(f"Processed {processed_count} summaries, starting from index {start_index}")
     start_time = time.time()

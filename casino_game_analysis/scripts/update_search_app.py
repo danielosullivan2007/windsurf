@@ -21,13 +21,14 @@ import pandas as pd
 import csv
 from datetime import datetime
 import argparse
+import glob
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s: %(message)s',
     handlers=[
-        logging.FileHandler('search_app_updates.log'),
+        logging.FileHandler('../data/logs/search_app_updates.log'),
         logging.StreamHandler()
     ]
 )
@@ -36,6 +37,7 @@ logging.basicConfig(
 UNIFIED_EMBEDDINGS_FILE = "../embeddings/unified_game_embeddings.csv"
 LEGACY_EMBEDDINGS_FILE = "../embeddings/game_summary_embeddings.csv" # Kept for backward compatibility
 GAME_DATA_FILE = "../data/bigwinboard_with_summaries_final.csv"
+SHORT_SUMMARIES_FILE = "../data/bigwinboard_short_summaries.csv"
 SEARCH_APP_DATA_DIR = "../api/data"
 COMBINED_DATA_FILE = "../api/data/game_data_with_embeddings.json"
 LAST_UPDATE_FILE = "../api/last_update.json"
@@ -109,58 +111,97 @@ def update_search_app(force=False, unified_embeddings_file=UNIFIED_EMBEDDINGS_FI
         logging.error(f"Error loading unified embeddings: {e}")
         return False
     
-    # Load game data with robust CSV parsing
+    # Load game metadata from CSV, maintaining essential fields
     try:
-        game_data_df = pd.read_csv(
-            game_data_file,
-            quoting=csv.QUOTE_ALL,
-            escapechar='\\',
-            encoding='utf-8',
-            low_memory=False
-        )
-        logging.info(f"Loaded {len(game_data_df)} game entries")
+        # Use our custom CSV reading approach
+        game_metadata = pd.read_csv(game_data_file, quoting=csv.QUOTE_ALL)
+        
+        # Use only required columns to reduce memory usage
+        required_cols = ['title', 'structured_summary', 'developer', 'volatility']
+        available_cols = [col for col in required_cols if col in game_metadata.columns]
+        
+        logging.info(f"Using columns: {available_cols} from game data file")
+        
+        if 'title' not in available_cols:
+            logging.error("Title column missing from game data file")
+            return False
+            
+        game_metadata = game_metadata[available_cols]
+        logging.info(f"Loaded metadata for {len(game_metadata)} games")
+        
+        # Try to load short summaries if they exist
+        short_summaries = {}
+        if os.path.exists(SHORT_SUMMARIES_FILE):
+            try:
+                # Read the CSV file without headers and assign column names manually
+                # The file has 3 columns: game_name, full_summary, short_summary
+                short_summaries_df = pd.read_csv(
+                    SHORT_SUMMARIES_FILE, 
+                    quoting=csv.QUOTE_ALL, 
+                    header=None, 
+                    names=['game_name', 'full_summary', 'short_summary']
+                )
+                
+                # Clean up quotation marks from the game names and short summaries
+                short_summaries_df['game_name'] = short_summaries_df['game_name'].str.strip('"')
+                short_summaries_df['short_summary'] = short_summaries_df['short_summary'].str.strip('"')
+                
+                # Create dictionary mapping from game name to short summary
+                short_summaries = dict(zip(
+                    short_summaries_df['game_name'],
+                    short_summaries_df['short_summary']
+                ))
+                
+                # Log some debug info
+                logging.info(f"Loaded {len(short_summaries)} short summaries")
+                if len(short_summaries) > 0:
+                    sample_keys = list(short_summaries.keys())[:3]
+                    logging.info(f"Sample short summary keys: {sample_keys}")
+                    if 'Hugo 2' in short_summaries:
+                        logging.info(f"Hugo 2 short summary is available")
+            except Exception as e:
+                logging.warning(f"Error loading short summaries: {e}")
+                short_summaries = {}
     except Exception as e:
-        logging.error(f"Error loading game data: {e}")
+        logging.error(f"Error loading game metadata: {e}")
         return False
     
+    # Normalize column names in game data
+    game_metadata.columns = [col.lower().strip() for col in game_metadata.columns]
+    
     # Print column names for debugging
-    logging.info(f"Game data columns: {list(game_data_df.columns)}")
+    logging.info(f"Game data columns: {list(game_metadata.columns)}")
     logging.info(f"Unified embeddings columns: {list(unified_embeddings_df.columns)}")
     
-    # Normalize column names in game data
-    game_data_df.columns = [col.lower().strip() for col in game_data_df.columns]
-    
-    # Print normalized column names
-    logging.info(f"Normalized game data columns: {list(game_data_df.columns)}")
-    
     # Make sure title column exists in game data
-    if 'title' not in game_data_df.columns:
+    if 'title' not in game_metadata.columns:
         # Try to find a suitable title column
-        title_candidates = [col for col in game_data_df.columns if 'title' in col or 'name' in col]
+        title_candidates = [col for col in game_metadata.columns if 'title' in col or 'name' in col]
         if title_candidates:
-            logging.info(f"Renaming column '{title_candidates[0]}' to 'title' in game data")
-            game_data_df.rename(columns={title_candidates[0]: 'title'}, inplace=True)
+            logging.info(f"Found potential title columns: {title_candidates}")
+            # Use the first matching column as title
+            game_metadata = game_metadata.rename(columns={title_candidates[0]: 'title'})
+            logging.info(f"Renamed '{title_candidates[0]}' to 'title'")
         else:
             logging.error("No title column found in game data")
             return False
     
     # Extract only needed metadata
     required_columns = ['title', 'developer', 'volatility', 'structured_summary']
-    filtered_columns = [col for col in required_columns if col in game_data_df.columns]
+    filtered_columns = [col for col in required_columns if col in game_metadata.columns]
     
     if len(filtered_columns) < 2:
-        logging.error(f"Not enough required columns found in game data. Found: {filtered_columns}")
-        return False
+        logging.warning(f"Minimal game metadata available. Only {filtered_columns} found.")
     
-    game_metadata = game_data_df[filtered_columns].copy()
+    game_metadata_slim = game_metadata[filtered_columns].copy()
     
     # Print before merge
-    logging.info(f"Game metadata shape: {game_metadata.shape}, columns: {list(game_metadata.columns)}")
+    logging.info(f"Game metadata shape: {game_metadata_slim.shape}, columns: {list(game_metadata_slim.columns)}")
     logging.info(f"Unified embeddings shape: {unified_embeddings_df.shape}, columns: {list(unified_embeddings_df.columns)}")
     
     # Merge with embeddings
     combined_data = pd.merge(
-        game_metadata, 
+        game_metadata_slim, 
         unified_embeddings_df, 
         left_on='title', 
         right_on='title', 
@@ -189,6 +230,10 @@ def update_search_app(force=False, unified_embeddings_file=UNIFIED_EMBEDDINGS_FI
             game_entry['volatility'] = row['volatility']
         if 'structured_summary' in row:
             game_entry['summary'] = row['structured_summary']
+            
+        # Add short summary if available for this title
+        if row['title'] in short_summaries:
+            game_entry['short_summary'] = short_summaries[row['title']]
         
         game_data_list.append(game_entry)
     

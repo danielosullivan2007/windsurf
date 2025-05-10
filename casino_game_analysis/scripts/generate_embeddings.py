@@ -20,7 +20,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s: %(message)s',
     handlers=[
-        logging.FileHandler('embedding_generation.log'),
+        logging.FileHandler('../data/logs/embedding_generation.log'),
         logging.StreamHandler()
     ]
 )
