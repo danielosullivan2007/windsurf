@@ -24,6 +24,7 @@ export const performSearch = async (query, semanticOnly = false) => {
           title: 'Gates of Olympus',
           similarity: 0.92,
           summary: 'Enter the realm of Greek gods with Zeus himself in this mythology-themed slot game.',
+          short_summary: 'Enter the realm of Greek gods with Zeus himself.',
           provider: 'Pragmatic Play',
           volatility: 'High',
           match_type: 'client_fallback'
@@ -33,6 +34,7 @@ export const performSearch = async (query, semanticOnly = false) => {
           title: 'Book of Gods',
           similarity: 0.89,
           summary: 'An ancient Egyptian mythology-themed slot with expanding symbols and free spins.',
+          short_summary: 'An ancient Egyptian mythology-themed slot with expanding symbols.',
           provider: 'Big Time Gaming',
           volatility: 'High',
           match_type: 'client_fallback'
@@ -42,6 +44,7 @@ export const performSearch = async (query, semanticOnly = false) => {
           title: 'Age of the Gods',
           similarity: 0.87,
           summary: 'A mythology-themed slot game featuring Greek gods and epic adventures.',
+          short_summary: 'A mythology-themed slot game featuring Greek gods.',
           provider: 'Playtech',
           volatility: 'Medium-High',
           match_type: 'client_fallback'
@@ -51,6 +54,7 @@ export const performSearch = async (query, semanticOnly = false) => {
           title: 'Rise of Olympus',
           similarity: 0.85,
           summary: 'Join Hades, Poseidon, and Zeus in this mythology-inspired grid slot with cascading symbols.',
+          short_summary: 'Join Hades, Poseidon, and Zeus in this mythology-inspired grid slot.',
           provider: 'Play n GO',
           volatility: 'High',
           match_type: 'client_fallback'
@@ -60,6 +64,7 @@ export const performSearch = async (query, semanticOnly = false) => {
           title: 'Divine Fortune',
           similarity: 0.82,
           summary: 'A progressive jackpot slot inspired by ancient Greek mythology with Falling Wilds and a Jackpot Bonus game.',
+          short_summary: 'A progressive jackpot slot inspired by ancient Greek mythology.',
           provider: 'NetEnt',
           volatility: 'Medium',
           match_type: 'client_fallback'
@@ -105,6 +110,7 @@ export const performSearch = async (query, semanticOnly = false) => {
                   title: 'Age of the Gods',
                   similarity: 0.92,
                   summary: 'A mythology-themed slot game featuring Greek gods and epic adventures.',
+                  short_summary: 'A mythology-themed slot game featuring Greek gods.',
                   provider: 'Playtech',
                   volatility: 'Medium-High',
                   match_type: 'fallback'
@@ -114,6 +120,7 @@ export const performSearch = async (query, semanticOnly = false) => {
                   title: 'Gates of Olympus',
                   similarity: 0.89,
                   summary: 'Enter the realm of Greek gods with Zeus himself in this mythology-themed slot game.',
+                  short_summary: 'Enter the realm of Greek gods with Zeus himself.',
                   provider: 'Pragmatic Play',
                   volatility: 'High',
                   match_type: 'fallback'
@@ -123,6 +130,7 @@ export const performSearch = async (query, semanticOnly = false) => {
                   title: 'Rise of Olympus',
                   similarity: 0.87,
                   summary: 'Join Hades, Poseidon, and Zeus in this mythology-inspired grid slot with cascading symbols.',
+                  short_summary: 'Join Hades, Poseidon, and Zeus in this mythology-inspired grid slot.',
                   provider: 'Play n GO',
                   volatility: 'High',
                   match_type: 'fallback'
@@ -154,6 +162,7 @@ export const performSearch = async (query, semanticOnly = false) => {
                 title: 'Age of the Gods',
                 similarity: 0.92,
                 summary: 'A mythology-themed slot game featuring Greek gods and epic adventures.',
+                short_summary: 'A mythology-themed slot game featuring Greek gods.',
                 provider: 'Playtech',
                 volatility: 'Medium-High',
                 match_type: 'fallback'
@@ -163,6 +172,7 @@ export const performSearch = async (query, semanticOnly = false) => {
                 title: 'Gates of Olympus',
                 similarity: 0.89,
                 summary: 'Enter the realm of Greek gods with Zeus himself in this mythology-themed slot game.',
+                short_summary: 'Enter the realm of Greek gods with Zeus himself.',
                 provider: 'Pragmatic Play',
                 volatility: 'High',
                 match_type: 'fallback'

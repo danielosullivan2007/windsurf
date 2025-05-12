@@ -12,6 +12,9 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import Collapse from '@mui/material/Collapse';
 // Import the new API service
 import { performSearch } from './api-service';
 import './App.css';
@@ -74,7 +77,182 @@ const SUGGESTIONS = [
 
   // Using styled components from TextColors.js instead of local definitions
 
-  // Process search results to ensure correct titles
+  // StarsField component - adds gently twinkling stars to the background
+  const StarsField = () => {
+    const [stars, setStars] = useState([]);
+    
+    // Generate a set of random stars on component mount
+    React.useEffect(() => {
+      const numberOfStars = 100; // Adjust for more or fewer stars
+      const newStars = [];
+      
+      for (let i = 0; i < numberOfStars; i++) {
+        // Generate random properties for each star
+        newStars.push({
+          id: i,
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+          size: 1 + Math.random() * 2, // Size between 1-3px
+          opacity: 0.2 + Math.random() * 0.5, // Opacity between 0.2-0.7
+          duration: 3 + Math.random() * 7, // Animation duration between 3-10s
+          delay: Math.random() * 10 // Random delay for each star
+        });
+      }
+      
+      setStars(newStars);
+    }, []);
+    
+    return (
+      <div className="stars-container">
+        {stars.map(star => (
+          <div
+            key={star.id}
+            className="star"
+            style={{
+              left: star.left,
+              top: star.top,
+              width: `${star.size}px`,
+              height: `${star.size}px`,
+              '--twinkle-opacity': star.opacity,
+              '--twinkle-duration': `${star.duration}s`,
+              '--twinkle-delay': `${star.delay}s`
+            }}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  // ParallaxCard component - adds a cool 3D tilt effect to cards based on mouse position
+  const ParallaxCard = ({ children }) => {
+    const [transform, setTransform] = useState({
+      rotateX: 0,
+      rotateY: 0,
+      translateZ: 0,
+      scale: 1,
+      brightness: 1
+    });
+    
+    const handleMouseMove = (e) => {
+      const card = e.currentTarget;
+      const rect = card.getBoundingClientRect();
+      
+      // Calculate mouse position relative to card center
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      
+      // Calculate rotation based on mouse position (max rotation: 8deg)
+      const rotateY = (x / rect.width) * 8;
+      const rotateX = -(y / rect.height) * 8;
+      
+      // Update transform state
+      setTransform({
+        rotateX,
+        rotateY,
+        translateZ: 10,
+        scale: 1.03,
+        brightness: 1.03
+      });
+    };
+    
+    const handleMouseLeave = () => {
+      // Reset transform on mouse leave
+      setTransform({
+        rotateX: 0,
+        rotateY: 0,
+        translateZ: 0,
+        scale: 1,
+        brightness: 1
+      });
+    };
+    
+    return (
+      <Box
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        sx={{
+          transformStyle: 'preserve-3d',
+          transition: 'transform 0.1s ease, filter 0.1s ease',
+          transform: `perspective(1000px) rotateX(${transform.rotateX}deg) rotateY(${transform.rotateY}deg) translateZ(${transform.translateZ}px) scale(${transform.scale})`,
+          filter: `brightness(${transform.brightness})`,
+          '&:hover': {
+            boxShadow: '0 10px 20px rgba(0,0,0,0.6)'
+          }
+        }}
+      >
+        {children}
+      </Box>
+    );
+  };
+
+  // ExpandableText component that shows the first 2 lines of text with a dropdown to see the full text
+  const ExpandableText = ({ text }) => {
+    const [expanded, setExpanded] = useState(false);
+    
+    // Calculate if text is likely to be more than 2 lines (rough estimate: ~100 chars per line)
+    const isLongText = text && text.length > 200;
+    
+    // Get the truncated preview text (first 2 lines or ~200 chars)
+    const getPreviewText = () => {
+      if (!text) return '';
+      
+      // Try to find line breaks and split by those first
+      const lines = text.split('\n');
+      if (lines.length > 1) {
+        return lines.slice(0, 2).join('\n') + (lines.length > 2 ? '...' : '');
+      }
+      
+      // Otherwise estimate by characters
+      return text.substring(0, 200) + (text.length > 200 ? '...' : '');
+    };
+    
+    return (
+      <Box sx={{ mt: 0.5 }}>
+        {/* Always visible preview text */}
+        {!expanded && (
+          <Typography variant="body2" sx={{ mt: 0.5 }}>
+            {getPreviewText()}
+          </Typography>
+        )}
+        
+        {/* Expandable full text */}
+        <Collapse in={expanded} timeout="auto">
+          <Typography variant="body2" sx={{ mt: 0.5 }}>
+            {text}
+          </Typography>
+        </Collapse>
+        
+        {/* Only show expand/collapse button if text is long enough */}
+        {isLongText && (
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              justifyContent: 'center',
+              mt: 0.5,
+              cursor: 'pointer',
+              color: '#bb86fc',
+              '&:hover': { opacity: 0.8 }
+            }}
+            onClick={() => setExpanded(!expanded)}
+          >
+            {expanded ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem' }}>
+                <ExpandLessIcon fontSize="small" sx={{ mr: 0.5 }} />
+                <span>Show less</span>
+              </Box>
+            ) : (
+              <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '0.8rem' }}>
+                <ExpandMoreIcon fontSize="small" sx={{ mr: 0.5 }} />
+                <span>Read more</span>
+              </Box>
+            )}
+          </Box>
+        )}
+      </Box>
+    );
+  };
+
+  // Process search results to ensure correct titles and generate brief summaries
   const processSearchResults = (results) => {
     if (!results) return [];
     
@@ -89,6 +267,15 @@ const SUGGESTIONS = [
         result.summary = result.summary.replace('Lights, Camera, Cash!', 'Lights, Camera, Action!');
       }
       
+      // Generate a brief summary if it doesn't exist
+      if (!result.short_summary && result.summary) {
+        // Get first sentence or first 100 characters, whichever is shorter
+        const firstSentenceMatch = result.summary.match(/^(.*?[.!?])(\s|$)/);  
+        result.short_summary = firstSentenceMatch 
+          ? firstSentenceMatch[1]
+          : result.summary.slice(0, 100) + (result.summary.length > 100 ? '...' : '');
+      }
+      
       return result;
     });
   };
@@ -100,6 +287,7 @@ function App() {
   const [error, setError] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [semanticOnly, setSemanticOnly] = useState(false);
+  const [showShortSummary, setShowShortSummary] = useState(false);
   
   // Add state mounting indicator to debug render issues
   const [isMounted, setIsMounted] = useState(false);
@@ -134,6 +322,7 @@ function App() {
       // Extract results
       const results = data && data.results ? data.results : [];
       console.log(`Received ${results.length} search results`);
+      
       
       // Set the search results
       setSearchResults(results);
@@ -214,9 +403,10 @@ function App() {
           alignItems: 'center',
           justifyContent: 'center',
           p: 4,
-          background: 'radial-gradient(circle at center, rgba(40, 5, 60, 0.4) 0%, rgba(10, 2, 20, 0.95) 70%, black 100%)'
-        }}
-      >
+          background: 'radial-gradient(circle at center, rgba(40, 5, 60, 0.4) 0%, rgba(10, 2, 20, 0.95) 70%, black 100%)',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
         <Box 
           className="search-container"
           sx={{
@@ -229,8 +419,11 @@ function App() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'stretch',
+            overflow: 'hidden'
           }}>
-          <Box sx={{ mb: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          {/* Add the sparkling stars in the search container's purple gradient background */}
+          <StarsField />
+          <Box sx={{ mb: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', position: 'relative', zIndex: 1 }}>
             <Box sx={{ mb: 1 }}>
               <Typography variant="overline" sx={{ 
                 color: '#f0f4ff', 
@@ -264,43 +457,78 @@ function App() {
                 </Typography>
               )}
               
-              {/* Toggle Switch for Semantic-Only Mode */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography variant="caption" sx={{ color: semanticOnly ? 'rgba(240,244,255,0.5)' : '#f0f4ff' }}>
-                  Normal
-                </Typography>
-                <Box 
-                  onClick={() => setSemanticOnly(!semanticOnly)}
-                  sx={{
-                    width: '40px',
-                    height: '20px',
-                    bgcolor: semanticOnly ? '#ff4081' : 'rgba(255,255,255,0.3)',
-                    borderRadius: '10px',
-                    position: 'relative',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.3s',
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '0 2px'
-                  }}
-                >
+              {/* Toggle controls for Semantic and Summary Type */}
+              <Box sx={{ display: 'flex', mt: 1, mb: 1.5, justifyContent: 'center', gap: 2 }}>
+                {/* Toggle Switch for Semantic-Only Mode */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Box 
+                    onClick={() => setSemanticOnly(!semanticOnly)}
                     sx={{
-                      width: '16px',
-                      height: '16px',
-                      borderRadius: '50%',
-                      bgcolor: '#f0f4ff',
-                      position: 'absolute',
-                      left: semanticOnly ? '22px' : '2px',
-                      transition: 'left 0.3s'
+                      width: '40px',
+                      height: '20px',
+                      bgcolor: semanticOnly ? '#ff4081' : 'rgba(255,255,255,0.3)',
+                      borderRadius: '10px',
+                      position: 'relative',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.3s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '0 2px'
                     }}
-                  />
+                  >
+                    <Box 
+                      sx={{
+                        width: '16px',
+                        height: '16px',
+                        borderRadius: '50%',
+                        bgcolor: '#f0f4ff',
+                        position: 'absolute',
+                        left: semanticOnly ? '22px' : '2px',
+                        transition: 'left 0.3s'
+                      }}
+                    />
+                  </Box>
+                  <Typography variant="caption" sx={{ color: semanticOnly ? '#f0f4ff' : 'rgba(240,244,255,0.5)' }}>
+                    Semantic
+                  </Typography>
                 </Box>
-                <Typography variant="caption" sx={{ color: semanticOnly ? '#f0f4ff' : 'rgba(240,244,255,0.5)' }}>
-                  Semantic Only
-                </Typography>
+                
+                {/* Toggle Switch for Brief/Detailed Summary */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box 
+                    onClick={() => setShowShortSummary(!showShortSummary)}
+                    sx={{
+                      width: '40px',
+                      height: '20px',
+                      bgcolor: showShortSummary ? '#ff4081' : 'rgba(255,255,255,0.3)',
+                      borderRadius: '10px',
+                      position: 'relative',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.3s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '0 2px'
+                    }}
+                  >
+                    <Box 
+                      sx={{
+                        width: '16px',
+                        height: '16px',
+                        borderRadius: '50%',
+                        bgcolor: '#f0f4ff',
+                        position: 'absolute',
+                        left: showShortSummary ? '22px' : '2px',
+                        transition: 'left 0.3s'
+                      }}
+                    />
+                  </Box>
+                  <Typography variant="caption" sx={{ color: showShortSummary ? '#f0f4ff' : 'rgba(240,244,255,0.5)' }}>
+                    {showShortSummary ? 'Brief' : 'Detailed'}
+                  </Typography>
+                </Box>
               </Box>
             </Box>
+
           </Box>
 
           {/* Suggestions */}
@@ -575,32 +803,26 @@ function App() {
               }}
             >
               {searchResults.map((game, index) => (
-                <Card 
-                  className="game-card"
-                  key={index} 
-                  sx={{ 
-                    bgcolor: '#171720', 
-                    color: '#f0f4ff', 
-                    mb: 2, 
-                    mt: index === 0 ? 0.5 : 0,
-                    mx: 0.5,
-                    borderRadius: 3,
-                    border: '1px solid rgba(60, 60, 70, 0.4)',
-                    boxShadow: '0 8px 30px rgba(15, 15, 20, 0.6)',
-                    overflow: 'hidden',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 6px 25px rgba(0,0,0,0.3)',
-                      bgcolor: '#333355',
-                    }
-                  }}
-                >
-                  <CardContent>
-                    {/* Game title */}
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      {game.game_name || game.title || 'Unknown Game'}
-                    </Typography>
+                <ParallaxCard key={index}>
+                  <Card 
+                    className="game-card"
+                    sx={{ 
+                      bgcolor: '#171720', 
+                      color: '#f0f4ff', 
+                      mb: 2, 
+                      mt: index === 0 ? 0.5 : 0,
+                      mx: 0.5,
+                      borderRadius: 3,
+                      border: '1px solid rgba(60, 60, 70, 0.4)',
+                      boxShadow: '0 8px 30px rgba(15, 15, 20, 0.6)',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    <CardContent>
+                      {/* Game title */}
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        {game.game_name || game.title || 'Unknown Game'}
+                      </Typography>
                     
                     {/* Match percentage with dedicated green component */}
                     <GreenMatchText>
@@ -668,12 +890,15 @@ function App() {
                       }} />
                     </Box>
                     
-                    {/* Game summary */}
-                    <Typography variant="body2" sx={{ mt: 0.5 }}>
-                      {game.summary}
-                    </Typography>
-                  </CardContent>
-                </Card>
+                    {/* Game summary with expandable text */}
+                    <ExpandableText 
+                      text={showShortSummary 
+                        ? (game.short_summary || game.summary.split('.')[0] + '.') 
+                        : game.summary} 
+                    />
+                    </CardContent>
+                  </Card>
+                </ParallaxCard>
               ))}
             </Box>
           )}

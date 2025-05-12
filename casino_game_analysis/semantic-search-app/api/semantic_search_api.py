@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import re
 import numpy as np
 import pandas as pd
 import pickle
@@ -31,10 +32,12 @@ def add_cors_headers(response):
 # Using absolute paths to ensure correct file locations
 DATA_DIR = "/Users/danielosullivan/Desktop/windsurf_testing/windsurf/casino_game_analysis/api/data"
 COMBINED_DATA_FILE = os.path.join(DATA_DIR, "game_data_with_embeddings.json")
+SHORT_SUMMARIES_FILE = "/Users/danielosullivan/Desktop/windsurf_testing/windsurf/casino_game_analysis/data/bigwinboard_short_summaries.csv"
 
 # Cache the embeddings and game data
 game_data = None
 game_embeddings = None
+short_summaries_map = {}
 
 # Cache for query embeddings to avoid repeated API calls
 query_embedding_cache = {}
@@ -46,7 +49,7 @@ COMMON_QUERY_EMBEDDINGS = {
 }
 
 def load_data():
-    global game_data, game_embeddings
+    global game_data, game_embeddings, short_summaries_map
     
     print(f'Loading data from {COMBINED_DATA_FILE}')
     
@@ -60,6 +63,23 @@ def load_data():
             game_data_list = json.load(f)
             
         print(f'Successfully loaded {len(game_data_list)} games from combined data file')
+        
+        # Load short summaries from CSV file if it exists
+        if os.path.exists(SHORT_SUMMARIES_FILE):
+            try:
+                short_summaries_df = pd.read_csv(SHORT_SUMMARIES_FILE)
+                print(f'Successfully loaded {len(short_summaries_df)} short summaries')
+                
+                # Create a dictionary mapping game names to short summaries
+                short_summaries_map = short_summaries_df.set_index('game_name')['short_summary'].to_dict()
+                print(f'Created short summaries map with {len(short_summaries_map)} entries')
+            except Exception as e:
+                print(f'Error loading short summaries file: {e}')
+                # If there's an error loading short summaries, we'll continue without them
+                short_summaries_map = {}
+        else:
+            print(f'Short summaries file not found at {SHORT_SUMMARIES_FILE}')
+            short_summaries_map = {}
         
         # Create a DataFrame and a dictionary of embeddings
         game_data_records = []
@@ -232,6 +252,26 @@ def try_update_mythology_embedding_async(query_text):
         print(f"Background embedding update failed: {str(e)}")
         pass
 
+# Get a short summary from the dedicated file or generate one if not available
+def create_short_summary(summary, game_title=None):
+    # First try to get the short summary from our dedicated file
+    if game_title and game_title in short_summaries_map:
+        return short_summaries_map[game_title]
+    
+    # Fall back to generating one if not found
+    if not summary:
+        return ""
+    
+    # Try to extract first sentence
+    first_sentence_match = re.match(r'^(.*?[.!?])(\s|$)', summary)
+    if first_sentence_match:
+        # Return the first sentence
+        return first_sentence_match.group(1)
+    else:
+        # If no sentence break, return first 100 characters with ellipsis if needed
+        max_length = 100
+        return summary[:max_length] + ('...' if len(summary) > max_length else '')
+
 # Find similar games based on embedding similarity
 def find_similar_games(query_embedding, top_n=10, debug_query=None, similarity_threshold=0.70):
     # Special case for mythology-related queries
@@ -278,12 +318,16 @@ def find_similar_games(query_embedding, top_n=10, debug_query=None, similarity_t
         if pd.isna(volatility) or volatility == 'NaN' or volatility == 'nan' or volatility is None:
             volatility = 'Unknown'
         
+        # Generate short summary
+        short_summary = create_short_summary(summary, title)
+        
         # Add to top games
         top_games.append({
             'game_name': title,  # Keep game_name for backward compatibility
             'title': title,
             'similarity': round(float(similarity), 2),
             'summary': summary,
+            'short_summary': short_summary,
             'provider': game_row.get('developer', 'Unknown'),
             'volatility': str(volatility)  # Ensure it's always a string
         })
@@ -332,11 +376,15 @@ def perform_search(query, semantic_only=False):
             # Get game data
             game_row = row.to_dict()
             
+            # Create short summary
+            short_summary = create_short_summary(summary, title)
+            
             exact_matches.append({
                 'game_name': title,
                 'title': title,
                 'similarity': 0.99,  # High similarity for exact matches
                 'summary': summary,
+                'short_summary': short_summary,
                 'provider': game_row.get('developer', 'Unknown'),
                 'volatility': game_row.get('volatility', 'Unknown'),
                 'match_type': 'exact'
@@ -371,11 +419,15 @@ def perform_search(query, semantic_only=False):
                 if pd.isna(volatility) or volatility == 'NaN' or volatility == 'nan' or volatility is None:
                     volatility = 'Unknown'
                 
+                # Create short summary
+                short_summary = create_short_summary(summary, title)
+                
                 keyword_matches.append({
                     'game_name': title,
                     'title': title,
                     'similarity': 0.95,  # High similarity but lower than exact title matches
                     'summary': summary,
+                    'short_summary': short_summary,
                     'provider': game_row.get('developer', 'Unknown'),
                     'volatility': str(volatility),  # Ensure it's always a string
                     'match_type': 'keyword'
@@ -397,9 +449,11 @@ def perform_search(query, semantic_only=False):
         query_embedding = get_query_embedding(query)
         results = find_similar_games(query_embedding, debug_query=query)
         
-        # Add match_type to results
+        # Add match_type and short_summary to results
         for result in results:
             result['match_type'] = 'semantic'
+            if 'summary' in result and not 'short_summary' in result:
+                result['short_summary'] = create_short_summary(result['summary'])
             
         print(f"Found {len(results)} semantic matches for query: {query}")
         return results
@@ -463,6 +517,7 @@ def search_api():
                     'title': 'Gates of Olympus',
                     'similarity': 0.85,
                     'summary': 'Enter the realm of Greek gods with Zeus himself in this mythology-themed slot game.',
+                    'short_summary': 'Enter the realm of Greek gods with Zeus himself.',
                     'provider': 'Pragmatic Play',
                     'volatility': 'High',
                     'match_type': 'mythology_fallback'
@@ -472,6 +527,7 @@ def search_api():
                     'title': 'Book of Gods',
                     'similarity': 0.82,
                     'summary': 'An ancient Egyptian mythology-themed slot with expanding symbols and free spins.',
+                    'short_summary': 'An ancient Egyptian mythology-themed slot with expanding symbols.',
                     'provider': 'Big Time Gaming',
                     'volatility': 'High',
                     'match_type': 'mythology_fallback'
@@ -481,6 +537,7 @@ def search_api():
                     'title': 'Age of the Gods',
                     'similarity': 0.80,
                     'summary': 'A mythology-themed slot game featuring Greek gods and epic adventures.',
+                    'short_summary': 'A mythology-themed slot game featuring Greek gods.',
                     'provider': 'Playtech',
                     'volatility': 'Medium-High',
                     'match_type': 'mythology_fallback'
@@ -548,18 +605,22 @@ def find_mythology_themed_games(query_embedding, top_n=10):
         if any(keyword.lower() in title.lower() for keyword in mythology_keywords):
             summary = row['structured_summary'] if pd.notna(row['structured_summary']) else ''
             
-            # Skip games with placeholder or missing summaries
+            # Skip games with placeholder summaries
             if not summary or 'no detailed description available' in summary.lower():
                 continue
                 
             matched_titles.add(title)
             game_row = row.to_dict()
             
+            # Generate short summary
+            short_summary = create_short_summary(summary, title)
+            
             matched_games.append({
                 'game_name': title,
                 'title': title,
                 'similarity': 0.95,  # High similarity for keyword matches
                 'summary': summary,
+                'short_summary': short_summary,
                 'provider': game_row.get('developer', 'Unknown'),
                 'volatility': game_row.get('volatility', 'Unknown'),
                 'match_type': 'mythology_keyword'
@@ -592,11 +653,15 @@ def find_mythology_themed_games(query_embedding, top_n=10):
                 if pd.isna(volatility) or volatility == 'NaN' or volatility == 'nan' or volatility is None:
                     volatility = 'Unknown'
                 
+                # Generate short summary
+                short_summary = create_short_summary(summary, title)
+                
                 matched_games.append({
                     'game_name': title,
                     'title': title,
                     'similarity': 0.9,  # High similarity but lower than title matches
                     'summary': summary,
+                    'short_summary': short_summary,
                     'provider': game_row.get('developer', 'Unknown'),
                     'volatility': str(volatility),  # Ensure it's always a string
                     'match_type': 'mythology_keyword'
@@ -650,11 +715,15 @@ def find_mythology_themed_games(query_embedding, top_n=10):
         if pd.isna(volatility) or volatility == 'NaN' or volatility == 'nan' or volatility is None:
             volatility = 'Unknown'
             
+        # Generate short summary
+        short_summary = create_short_summary(summary, title)
+        
         semantic_matches.append({
             'game_name': title,
             'title': title,
             'similarity': round(float(similarity), 2),
             'summary': summary,
+            'short_summary': short_summary,
             'provider': game_row.get('developer', 'Unknown'),
             'volatility': str(volatility),  # Ensure it's always a string
             'match_type': 'mythology_semantic'

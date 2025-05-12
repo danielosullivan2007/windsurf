@@ -1,0 +1,39 @@
+2025-05-08 17:49:44,602 - INFO: Created output file as a copy of input file
+2025-05-08 17:49:44,767 - INFO: Loaded 5421 games from ../data/bigwinboard_with_summaries_complete.csv
+2025-05-08 17:49:44,767 - INFO: Found 5081 games without structured summaries
+2025-05-08 17:49:44,768 - INFO: Processing 10 games starting from index 0
+2025-05-08 17:49:53,170 - INFO: Total time: 8.40 seconds
+2025-05-08 17:49:53,170 - INFO: Processed 10 summaries
+2025-05-08 17:49:53,170 - INFO: Completed! Processed 10 summaries, starting from index 0
+2025-05-08 17:50:19,772 - INFO: Loaded 5421 games from ../data/bigwinboard_with_summaries_complete.csv
+2025-05-08 17:50:19,773 - INFO: Found 5071 games without structured summaries
+2025-05-08 17:50:19,773 - INFO: Processing 5061 games starting from index 10
+2025-05-08 17:50:55,952 - INFO: Saved progress: 50/5061 games processed
+2025-05-08 17:58:42,641 - INFO: Saved progress: 100/5061 games processed
+2025-05-08 18:03:57,952 - INFO: Saved progress: 150/5061 games processed
+2025-05-08 18:04:49,038 - INFO: Saved progress: 200/5061 games processed
+2025-05-08 18:05:38,790 - INFO: Saved progress: 250/5061 games processed
+2025-05-08 18:06:27,844 - INFO: Saved progress: 300/5061 games processed
+2025-05-08 18:15:36,340 - INFO: Saved progress: 350/5061 games processed
+2025-05-08 18:17:53,484 - INFO: Saved progress: 400/5061 games processed
+2025-05-08 18:19:26,250 - ERROR: Error generating summary for 300 Shields Extreme: Request timed out: HTTPSConnectionPool(host='api.openai.com', port=443): Read timed out. (read timeout=600)
+2025-05-08 18:19:35,663 - ERROR: Error generating summary for Wild Chapo: Request timed out: HTTPSConnectionPool(host='api.openai.com', port=443): Read timed out. (read timeout=600)
+2025-05-08 18:19:43,668 - INFO: Saved progress: 450/5061 games processed
+2025-05-08 18:22:26,816 - INFO: Saved progress: 500/5061 games processed
+2025-05-08 18:23:11,952 - INFO: Saved progress: 550/5061 games processed
+2025-05-08 18:23:59,170 - INFO: Saved progress: 600/5061 games processed
+2025-05-08 18:31:18,762 - INFO: Saved progress: 650/5061 games processed
+2025-05-08 18:32:02,153 - INFO: Saved progress: 700/5061 games processed
+2025-05-08 18:32:46,665 - ERROR: Error generating summary for Mystery Genie Fortunes of the Lamp: Request timed out: HTTPSConnectionPool(host='api.openai.com', port=443): Read timed out. (read timeout=600)
+2025-05-08 18:32:47,167 - ERROR: Error generating summary for Midnight Gold: Request timed out: HTTPSConnectionPool(host='api.openai.com', port=443): Read timed out. (read timeout=600)
+2025-05-08 18:32:49,577 - INFO: Saved progress: 750/5061 games processed
+2025-05-08 18:56:17,179 - INFO: Loaded 5421 games from ../data/bigwinboard_with_summaries_complete.csv
+2025-05-08 18:56:17,179 - INFO: Found 4321 games without structured summaries
+2025-05-08 18:56:17,180 - INFO: Processing 1000 games starting from index 973
+2025-05-08 18:56:46,551 - INFO: Saved progress: 50/1000 games processed
+2025-05-08 18:57:16,343 - INFO: Saved progress: 100/1000 games processed
+2025-05-08 18:57:45,571 - INFO: Saved progress: 150/1000 games processed
+2025-05-08 18:58:13,518 - INFO: Saved progress: 200/1000 games processed
+2025-05-08 18:58:42,587 - INFO: Saved progress: 250/1000 games processed
+2025-05-08 18:59:10,800 - INFO: Saved progress: 300/1000 games processed
+2025-05-08 19:22:02,803 - ERROR: Error generating summary for Ruff Heist: Error communicating with OpenAI: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
