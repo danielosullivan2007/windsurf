@@ -51,3 +51,11 @@ cluster_info.json
 .fusebox/
 .dynamodb/
 .tern-port
+
+*.csv
+*.json
+*.log
+
+# archive
+archive/
+
