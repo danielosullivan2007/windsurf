@@ -38,6 +38,10 @@ __pycache__/
 game_embeddings.json
 cluster_info.json
 
+# Large files exceeding GitHub's limit
+casino_game_analysis/embeddings/embedding_checkpoint.json
+archive/game_embeddings.csv
+
 # Temporary files
 *.tmp
 *.bak
