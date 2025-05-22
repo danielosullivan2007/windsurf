@@ -1,8 +1,0 @@
-Starting embedding generation at 2025-05-09 16:01:14
-Input file: ../data/bigwinboard_with_summaries.csv
-Output file: ../embeddings/game_summary_embeddings.csv
-
-Completed embedding generation at 2025-05-09 16:12:30
-Total embeddings generated: 1340
-Total time taken: 675.74 seconds (11.26 minutes)
-Average time per embedding: 0.75 seconds
